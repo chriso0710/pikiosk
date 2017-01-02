@@ -1,0 +1,33 @@
+---
+- name: Package updates
+  hosts: all
+  become: true
+  become_user: root
+
+  tasks:
+    - name: apt cache update
+      apt: update_cache=yes
+           cache_valid_time=3600
+
+    - name: apt upgrade
+      apt: upgrade=safe
+
+    - name: check if a reboot is required
+      register: reboot
+      stat: path=/var/run/reboot-required get_md5=no
+
+    - name: restart server
+      shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+      async: 1
+      poll: 0
+      ignore_errors: true
+      when: reboot.stat.exists == true
+
+    - name: waiting for server to come back
+      local_action: wait_for host={{ inventory_hostname }}
+                    state=started
+                    delay=30
+                    timeout=300
+                    port=22
+      become: false
+      when: reboot.stat.exists == true

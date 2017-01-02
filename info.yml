@@ -1,0 +1,17 @@
+---
+- name: Server info
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+    - name: Display important variables
+      debug:
+        msg:
+          - "MACAddress {{ hostvars[inventory_hostname]['ansible_eth0']['macaddress'] }}"
+          - "Release {{ hostvars[inventory_hostname]['ansible_lsb']['description'] }}"
+          - "Name {{ pi_name }}"
+          - "ChromeURL {{ chrome_url }}"
+
+#   - debug: var=vars
+#   - debug: var=hostvars[inventory_hostname]

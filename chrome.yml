@@ -1,0 +1,61 @@
+---
+- name: Chrome autostart with URL
+  hosts: all
+  become: yes
+  become_user: root
+  vars:
+    autostart_user: pi
+
+  tasks:
+
+  # https://www.raspberrypi.org/documentation/configuration/config-txt.md
+  # TODO: http://unix.stackexchange.com/questions/6220/how-can-i-change-the-language-in-chromium
+  # TODO: http://stackoverflow.com/questions/7769061/how-to-add-custom-accept-languages-to-chrome-for-pseudolocalization-testing
+
+  - name: HDMI force hotplug
+    action: lineinfile dest=/boot/config.txt regexp="hdmi_force_hotplug" line="hdmi_force_hotplug=1" state=present
+    notify: Reboot
+
+  # disable hdmi drive
+  - name: HDMI normal mode
+    action: lineinfile dest=/boot/config.txt regexp="hdmi_drive" line="#hdmi_drive=2" state=present
+    notify: Reboot
+
+  - name: HDMI group
+    action: lineinfile dest=/boot/config.txt regexp="hdmi_group" line="hdmi_group=2" state=present
+    notify: Reboot
+
+  - name: HDMI mode FullHD
+    action: lineinfile dest=/boot/config.txt regexp="hdmi_mode" line="hdmi_mode=82" state=present
+    notify: Reboot
+
+  - name: Install packages
+    apt: pkg={{item}} state=installed
+    with_items:
+      - unclutter
+      - ttf-mscorefonts-installer
+    notify: Restart lightdm
+
+  - name: Create LXDE autostart configuration
+    template:
+      src: "templates/autostart.j2"
+      dest: "/home/{{ autostart_user }}/.config/lxsession/LXDE-pi/autostart"
+    notify: Restart lightdm
+
+  - name: Disable lightdm screensaver
+    action: lineinfile dest=/etc/lightdm/lightdm.conf regexp="xserver-command=" line="xserver-command=X -s 0 -dpms" state=present
+    notify: Restart lightdm
+
+  handlers:
+
+  - name: Reboot
+    shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+    async: 1
+    poll: 0
+    ignore_errors: true
+
+  # sudo systemctl restart lightdm.service
+  - name: Restart lightdm
+    service:
+      name: lightdm
+      state: restarted

@@ -1,79 +1,129 @@
-# 5Minutes - Server Security Essentials
+# Automate Chromium in kiosk mode on Raspberry Pi Raspbian Jessie with Ansible
 
-**Secure your Linux server with single command!**
+At [Carl Group](http://www.carl-group.de/en/home/) we are using a small flock of Raspberry Pis for conference-branded screens, like schedule, voting results or social media walls with [SENDONSCREEN](http://send.on-screen.info). The Pis display dynamic web pages in full screen FullHD kiosk mode. They are distributed over the entire conference area and operate fully stand alone and have no keyboard or mouse attached.
 
-A while back, I read this [article][1] about what you should do first when you get new server.
-Doing so manually is quite boring though, and error prone. So, I tried to automate with [Ansible][2], 
-and added few extra security features like completely disabling root and password login etc.
- 
+The new [Raspbian Jessie Pixel desktop](https://www.raspberrypi.org/downloads/raspbian/) with Chromium on the Pi 3 works great. The new Pixel desktop with lightdm is really fast, responsive, lightweight and good looking. And it delivers Chromium out of the box. Great work by the Raspbian team!
 
-## Install
+## Ansible automation
 
-So you have new servers with root access, please follow these steps.
- 
-1. Install Ansible on your local computer. It's really easy if you have updated `Python`
- 
- ```sudo pip install ansible```
+Manually securing and configuring a Raspberry Pi for kiosk mode is boring and error prone. I love [Ansible](https://www.ansible.com/), so we are using Ansible to automate the installation and distribution of our Pi flock. The base image is Raspbian Jessie Pixel, which we copy to 8 GB SD cards.
 
-2. Clone this repo and change `hosts` file with IP address of your servers.
- 
- ```git clone git@github.com:chhantyal/5minutes.git && cd 5minutes && open -t hosts```
+Using the following playbooks is very easy. You will have your Pis running in a few minutes. And with a single command you will then be able to change the Chromium kiosk screen on all machines.
+This is all tested on Raspbian Jessie on multiple Raspberry Pi 2 and 3s.
 
-3. Change var `server_user_password` in `vars.yml` file with crypted password. 
-This will be password for `server_user_name`. To generate, run:
+These playbooks use a local ansible.cfg file, which sets the hosts file.
 
- ```sudo pip install passlib```    
- ```python -c "from passlib.hash import sha512_crypt; import getpass; print sha512_crypt.encrypt(getpass.getpass())"```
+Thanks @chhantyal for [5Minutes - Server Security Essentials](https://github.com/chhantyal/5minutes), which this repo is forked from.
 
-## Usage
+### Basic requirements
 
-Using it is very easy. From within in `5minutes` directory, run this Ansible command.
+- Ansible
+- nmap network scanner (optional)
+- Micro SD card reader/writer
+- No Wifi setup, your Pis must be connected via ethernet cable to your network
 
-```ansible-playbook 5minutes.yml -u <user_name> -K```
+### 1. Setup SD card image
 
-Enter password for your server and that't it. Single command!
+Burn the Raspbian Jessie image on to your SD card. I use [Etcher](https://etcher.io/) for this.
+Connect your Pi to the network via ethernet and boot it.
 
-## Try with Vagrant
+### 2. Find the IP adresses of your Pis and change Ansible hosts file
 
-You can try on Vagrant box before running this on real servers.
-There is `Vagrantfile` included.
+I use nmap on my management machine for finding out the IP addresses of my Pis.
 
-```vagrant up```
+```
+$ sudo nmap -p 22 --open -sV 192.168.100.0/24
+```
 
-Change `hosts` to `127.1.1.0:2200` (see `vagrant up` output for exact port) and run command:
+Set the Pi addresses in your Ansible hosts file.
+Add the host variables pi_name and chrome_url. They are used by the playbooks for setting the hostname and the Chromium URL.
 
-```ansible-playbook 5minutes.yml -u vagrant --private-key .vagrant/machines/default/virtualbox/private_key```
+```
+[pis]
+192.168.100.67 pi_name=station1 chrome_url=http://kiosk1
+192.168.100.68 pi_name=station2 chrome_url=http://kiosk2
+192.168.100.71 pi_name=station3 chrome_url=http://kiosk3
+```
 
-### Under the Hood
+### 3. Set more variables
 
-If you are wondering what it does, here it is:
+Please check the variables in vars.yml, which you might want to change. You should at least set the Ansible management user and the key.
 
-- Connects to server using SSH
-- Updates APT cache
-- Performs APT upgrade
-- Adds user specified in variable `server_user_name` which has sudo permission
-- Adds specified public key in variable `user_public_keys` in ssh authorized_keys.
-- Disables root SSH access. Yes, from next time you need to use new user to access server.
-- Disables password authentication. Again you will need to use new user with SSH public key auth method.
-- Installs `ufw` as firewall, `fail2ban` to ban IPs that show malicious signs, `logwatch` to analyze and report logs.
-- It also installs `unattended-upgrades` to enable automatic security updates.
+```
+server_user_name: co
+server_user_password: raspberry
+user_public_keys:
+  - ~/.ssh/id_rsa.pub
+```
 
+### 4. First run, bootstrap and secure your Pis
 
-### Notes
+Use the user "pi" with the default password "raspberry".
 
-There are few other variables that you need/might want to change. See `vars:` defined in `vars.yml` file.
+You may want to check that your Pis are responding on the ssh port:
 
-- `server_user_name`: default `trinity`
-- `server_user_password`: Please change this. See [Ansible docs][3]
-- `logwatch_email`: default `devops@example.com`, you won't get report email from `logwatch` if you don't change.
-- `user_public_keys`: default `~/.ssh/id_rsa.pub`, if you use different key pair name, you need to change this path
- to public key file.
+```
+ansible all -m ping -u pi -k
+```
 
-Ansible is perfect for this automation because it's dead simple to install and use without having to learn it.    
-It uses SSH as agent, so you don't need to setup anything else.
+Execute the secure.yml playbook to secure your Pis:
+- sets hostname and timezone
+- creates a new sudo user with key login
+- disables ssh root access and password authentication
+- installs some packages
+- sets up ufw firewall
 
-PS: This is tested on Ubuntu, as that's what I use. You are welcome to add support for other distributions :)
+```
+ansible-playbook secure.yml -u pi -k
+```
 
-[1]: https://plusbryan.com/my-first-5-minutes-on-a-server-or-essential-security-for-linux-servers
-[2]: https://www.ansible.com
-[3]: http://docs.ansible.com/ansible/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
+After running the secure.yml playbook you can omit the username for Ansible and you won't be able to login with a password.
+
+### 5. Update Raspbian (optional)
+
+Use the apt.yml playbook to update the OS:
+
+```
+ansible-playbook apt.yml
+```
+
+This does only a safe upgrade, no dist upgrade. The playbook checks if the server needs to be restarted.
+
+### 6. Setup Chromium kiosk
+
+This is the main part. Use the chrome.yml playbook to set up Chromium in kiosk mode and make it autostart:
+
+```
+ansible-playbook chrome.yml
+```
+
+This does the following:
+- set HDMI modes
+- install unclutter and MS core fonts
+- disable screensaver
+- configure Chromium autostart
+
+The playbook checks if the lightdm X environment needs to be restarted if you change the chrome_url variable.
+
+### 7. Get info (optional)
+
+Use the info.yml playbook to get some info about your Pi flock:
+
+```
+ansible-playbook info.yml
+```
+
+## Some feature ideas
+
+- When using Wifi configure Wifi settings via Ansible
+- Create the Ansible hosts file automatically from the output of the nmap scan
+- Set the default language (accept language header) in Chromium
+- Make the Pi 3 operate as a Bluetooth Beacon (iBeacon and/or Eddystone) device and notify smartphone users of nearby conference actions, configure Beacon settings via Ansible
+
+## Contributing
+
+I would like to hear from you. Comments, ideas, questions, tips, tests and pull requests are welcome.
+
+## License
+
+See [MIT License](LICENSE.txt)

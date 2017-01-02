@@ -1,2 +1,4 @@
-[webservers]
-127.0.0.1
+[pis]
+192.168.100.67 pi_name=station1 chrome_url=http://send.on-screen.info
+192.168.100.68 pi_name=station2 chrome_url=http://send.on-screen.info
+192.168.100.71 pi_name=station3 chrome_url=http://send.on-screen.info

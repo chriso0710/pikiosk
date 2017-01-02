@@ -1,25 +1,28 @@
 ---
-- name: First 5 minutes in new servers
-  hosts: webservers
+- name: Bootstrap
+  hosts: all
   become: yes
   become_user: root
   vars_files:
     - vars.yml
 
   tasks:
-    - name: Update APT packages cache
-      apt: update_cache=yes
+    - name: Set Hostname
+      hostname: name={{ pi_name }}
 
-    - name: Perform aptitude safe-upgrade
-      apt: upgrade=yes
+    - name: Set Timezone
+      timezone: name={{ timezone }}
 
     - name: Create new user
-      user: name={{ server_user_name }} password={{ server_user_password }} shell=/bin/bash
+      user: name={{ server_user_name }}
+            password={{ server_user_password |password_hash('md5') }}
+            shell=/bin/bash
+            update_password=on_create
 
     - name: Add user to sudoers
       lineinfile: dest=/etc/sudoers
                   regexp="{{ server_user_name }} ALL"
-                  line="{{ server_user_name }} ALL=(ALL) ALL"
+                  line="{{ server_user_name }} ALL=(ALL) NOPASSWD:ALL"
                   state=present
 
     - name: Add authorized_keys for the user
@@ -37,10 +40,9 @@
 
     - name: Install required packages
       apt: state=installed pkg={{ item }}
-      with_items: 
+      with_items:
       - "{{ required_packages }}"
 
-    # Allow only ssh and http(s) ports
     - name: Allow ssh and http(s) connections
       ufw: rule=allow port={{ item }}
       with_items:
@@ -49,20 +51,6 @@
     - name: Enable ufw/firewall
       ufw: state=enabled policy=deny
 
-    - name: Set up Postfix to relay mail
-      debconf: name=postfix
-               question='{{ item.question }}'
-               value='{{ item.value }}'
-               vtype='{{ item.vtype }}'
-      with_items:
-        - { question: 'postfix/mailname', value: '{{ ansible_fqdn }}', vtype: 'string' }
-        - { question: 'postfix/main_mailer_type', value: 'Internet Site', vtype: 'string' }
-
-    - name: Email logwatch summary daily
-      lineinfile: dest=/etc/cron.daily/00logwatch
-                  regexp="^/usr/sbin/logwatch"
-                  line="/usr/sbin/logwatch --output mail --mailto {{ logwatch_email }} --detail high"
-                  state=present create=yes
   handlers:
     - name: Restart ssh
       service: name=ssh state=restarted
