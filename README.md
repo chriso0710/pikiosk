@@ -25,7 +25,7 @@ Thanks @chhantyal for [5Minutes - Server Security Essentials](https://github.com
 ### 1. Setup SD card image
 
 Burn the Raspbian Jessie image on to your SD card. I use [Etcher](https://etcher.io/) for this.
-Connect your Pi to the network via ethernet and boot it.
+Connect your Pi to the network via ethernet cable, power it on and boot.
 
 ### 2. Find the IP adresses of your Pis and change Ansible hosts file
 
@@ -103,7 +103,7 @@ This does the following:
 - disable screensaver
 - configure Chromium autostart
 
-The playbook checks if the lightdm X environment needs to be restarted if you change the chrome_url variable.
+The playbook checks if the lightdm X environment needs to be restarted if you changed the chrome_url variable.
 
 ### 7. Get info (optional)
 
@@ -118,7 +118,7 @@ ansible-playbook info.yml
 - When using Wifi configure Wifi settings via Ansible
 - Create the Ansible hosts file automatically from the output of the nmap scan
 - Set the default language (accept language header) in Chromium
-- Make the Pi 3 operate as a Bluetooth Beacon (iBeacon and/or Eddystone) device and notify smartphone users of nearby conference actions, configure Beacon settings via Ansible
+- Make the Pi 3 operate as a Bluetooth beacon (iBeacon and/or Eddystone) device and notify smartphone users of nearby conference actions, configure beacon settings via Ansible
 
 ## Contributing
 
