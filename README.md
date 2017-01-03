@@ -119,6 +119,7 @@ ansible-playbook info.yml
 - Create the Ansible hosts file automatically from the output of the nmap scan
 - Set the default language (accept language header) in Chromium
 - Make the Pi 3 operate as a Bluetooth beacon (iBeacon and/or Eddystone) device and notify smartphone users of nearby conference actions, configure beacon settings via Ansible
+- Splash screen
 
 ## Contributing
 
