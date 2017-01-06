@@ -13,17 +13,26 @@
     - name: Set Timezone
       timezone: name={{ timezone }}
 
+    - name: Setup Admin group
+      group:
+            name: admin
+            state: present
+
     - name: Create new user
       user: name={{ server_user_name }}
             password={{ server_user_password |password_hash('md5') }}
             shell=/bin/bash
+            groups: admin
             update_password=on_create
 
     - name: Add user to sudoers
-      lineinfile: dest=/etc/sudoers
-                  regexp="{{ server_user_name }} ALL"
-                  line="{{ server_user_name }} ALL=(ALL) NOPASSWD:ALL"
-                  state=present
+      copy: dest=/etc/sudoers.d/admin-group-nopasswd
+            content="%admin ALL=(ALL) NOPASSWD:ALL"
+            force=yes
+            group=root
+            owner=root
+            mode=0440
+            follow=yes
 
     - name: Add authorized_keys for the user
       authorized_key: user={{ server_user_name }} key="{{ lookup('file', item) }}"
