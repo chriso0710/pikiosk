@@ -78,7 +78,7 @@ Execute the secure.yml playbook to secure your Pis:
 - sets up ufw firewall
 
 ```
-ansible-playbook secure.yml -u pi -k
+$ ansible-playbook secure.yml -u pi -k
 ```
 
 After running the secure.yml playbook you can omit the username for Ansible and you won't be able to login with a password.
@@ -135,7 +135,7 @@ Please note:
 
 ### Connection Rejected Error
 
-If you cannot access the Pi after [Step 4][#4] (`ansible-playbook secure.yml -u pi -`) it's likely you may be using an incorrect user or private key.
+If you cannot access the Pi after Step 4 it's likely you may be using an incorrect user or private key.
 Whilst you can link to a private-key file using command line arguments with
 
 ```
