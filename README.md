@@ -24,12 +24,13 @@ Thanks @chhantyal for [5Minutes - Server Security Essentials](https://github.com
 - Ansible
 - nmap network scanner (optional)
 - Micro SD card reader/writer
-- No Wifi setup, your Pis must be connected via ethernet cable to your network
 
 ### 1. Setup SD card image
 
 Burn the Raspbian Jessie image on to your SD card. I use [Etcher](https://etcher.io/) for this.
 Connect your Pi to the network via ethernet cable, power it on and boot.
+
+If you create a valid ```wpa_supplicant.conf``` file and place in your boot partition the Pi copies it over using stock images (like Raspbian Jessie). The file disappears after it copies, but activates network on first boot so you should be able to find your Pi via nmap/ssh in your Wifi network.
 
 ### 2. Find the IP adresses of your Pis and change Ansible hosts file
 
