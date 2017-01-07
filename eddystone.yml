@@ -1,0 +1,24 @@
+---
+- name: Eddystone
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+
+  - name: Install packages
+    apt: pkg={{item}} state=installed
+    with_items:
+    - bluez
+    - bluez-hcidump
+
+  - name: Install PyBeacon
+    pip: name=PyBeacon state=present
+
+  - name: Start Beacon
+    command: PyBeacon -u {{ beacon_url }}
+    when: beacon_url is defined
+
+  - name: Stop Beacon
+    command: PyBeacon -t
+    when: beacon_url is not defined

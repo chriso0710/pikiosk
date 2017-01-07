@@ -63,7 +63,7 @@ Use the user "pi" with the default password "raspberry".
 You may want to check that your Pis are responding on the ssh port:
 
 ```
-ansible all -m ping -u pi -k
+$ ansible all -m ping -u pi -k
 ```
 
 Execute the secure.yml playbook to secure your Pis:
@@ -84,7 +84,7 @@ After running the secure.yml playbook you can omit the username for Ansible and 
 Use the apt.yml playbook to update the OS:
 
 ```
-ansible-playbook apt.yml
+$ ansible-playbook apt.yml
 ```
 
 This does only a safe upgrade, no dist upgrade. The playbook checks if the server needs to be restarted.
@@ -94,7 +94,7 @@ This does only a safe upgrade, no dist upgrade. The playbook checks if the serve
 This is the main part. Use the chrome.yml playbook to set up Chromium in kiosk mode and make it autostart:
 
 ```
-ansible-playbook chrome.yml
+$ ansible-playbook chrome.yml
 ```
 
 This does the following:
@@ -110,7 +110,7 @@ The playbook checks if the lightdm X environment needs to be restarted if you ch
 Use the info.yml playbook to get some info about your Pi flock:
 
 ```
-ansible-playbook info.yml
+$ ansible-playbook info.yml
 ```
 
 ## Some feature ideas
