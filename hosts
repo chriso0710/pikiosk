@@ -1,4 +1,4 @@
 [pis]
 192.168.100.67 pi_name=station1 chrome_url=http://send.on-screen.info
 192.168.100.68 pi_name=station2 chrome_url=http://send.on-screen.info
-192.168.100.81 pi_name=stationx chrome_url=http://www.spiegel.de beacon_url=https://goo.gl/CDY7Jd
+192.168.100.81 pi_name=stationx chrome_url=http://send.on-screen.info beacon_url=https://goo.gl/CDY7Jd
