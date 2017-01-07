@@ -125,6 +125,20 @@ $ ansible-playbook info.yml
 
 I would like to hear from you. Comments, ideas, questions, tips, tests and pull requests are welcome.
 
+## Troubleshooting
+
+### Connection Rejected Error
+If you cannot access the Pi after [Step 4][#4] (`ansible-playbook secure.yml -u pi -`) it's likely you may be using an incorrect user or private key. Whilst you can link to a private-key file using command line arguments it's probably easier all round if you edit the `ansible.cfg` file like so
+
+```
+cat >> ansible.cfg << ANSIBLE_CFG
+private_key_file = ~/.ssh/2016_4096_rsa
+remote_user = kiosk-admin
+ANSIBLE_CFG
+```
+
+It should be noted in the example given `kiosk-admin` is the `server_user_name` to administer the pi and `~/.ssh/2016_4096_rsa` is a custom SSH key (set via `server_user_password`) which corresponded to `~/.ssh/2016_4096_rsa.pub` in the `vars.yml` file
+
 ## License
 
 See [MIT License](LICENSE.txt)
