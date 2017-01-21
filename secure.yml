@@ -22,10 +22,10 @@
       user: name={{ server_user_name }}
             password={{ server_user_password |password_hash('md5') }}
             shell=/bin/bash
-            groups: admin
+            groups=admin
             update_password=on_create
 
-    - name: Add user to sudoers
+    - name: Add group to sudoers
       copy: dest=/etc/sudoers.d/admin-group-nopasswd
             content="%admin ALL=(ALL) NOPASSWD:ALL"
             force=yes
