@@ -12,7 +12,11 @@
           - "Release {{ hostvars[inventory_hostname]['ansible_lsb']['description'] }}"
           - "Name {{ pi_name }}"
           - "ChromeURL {{ chrome_url }}"
-          - "BeaconURL {{ beacon_url }}"
+
+    - name: Beacon URL
+      debug:
+        msg: "BeaconURL {{ beacon_url }}"
+      when: beacon_url is defined
 
 #   - debug: var=vars
 #   - debug: var=hostvars[inventory_hostname]
