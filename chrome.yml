@@ -3,8 +3,8 @@
   hosts: all
   become: yes
   become_user: root
-  vars:
-    autostart_user: pi
+  vars_files:
+    - vars.yml
 
   tasks:
 
@@ -54,8 +54,5 @@
     poll: 0
     ignore_errors: true
 
-  # sudo systemctl restart lightdm.service
   - name: Restart lightdm
-    service:
-      name: lightdm
-      state: restarted
+    include: tasks/restart_lightdm.yml

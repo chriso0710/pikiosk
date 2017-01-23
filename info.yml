@@ -13,7 +13,7 @@
           - "Name {{ pi_name }}"
           - "ChromeURL {{ chrome_url }}"
 
-    - name: Beacon URL
+    - name: Display beacon URL
       debug:
         msg: "BeaconURL {{ beacon_url }}"
       when: beacon_url is defined

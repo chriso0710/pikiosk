@@ -3,6 +3,7 @@ server_user_name: co
 server_user_password: raspberry
 user_public_keys:
   - ~/.ssh/id_rsa.pub
+autostart_user: pi
 
 required_packages:
   - ufw

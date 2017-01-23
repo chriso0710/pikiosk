@@ -9,6 +9,7 @@
   tasks:
     - name: Set Hostname
       hostname: name={{ pi_name }}
+      notify: Remove singleton
 
     - name: Set Timezone
       timezone: name={{ timezone }}
@@ -63,3 +64,6 @@
   handlers:
     - name: Restart ssh
       service: name=ssh state=restarted
+
+    - name: Remove singleton
+      include: tasks/rm_chrome_singleton.yml

@@ -30,7 +30,7 @@ Thanks @chhantyal for [5Minutes - Server Security Essentials](https://github.com
 Burn the Raspbian Jessie image on to your SD card. I use [Etcher](https://etcher.io/) for this.
 Connect your Pi to the network via ethernet cable, power it on and boot.
 
-If you create a valid ```wpa_supplicant.conf``` file and place in your boot partition the Pi copies it over using stock images (like Raspbian Jessie). The file disappears after it copies, but activates network on first boot so you should be able to find your Pi via nmap/ssh in your Wifi network.
+If you create a valid `wpa_supplicant.conf` file and place in your boot partition the Pi copies it over using stock images (like Raspbian Jessie). The file disappears after it copies, but activates network on first boot so you should be able to find your Pi via nmap/ssh in your Wifi network.
 
 ### 2. Find the IP adresses of your Pis and change Ansible hosts file
 
@@ -159,8 +159,12 @@ It should be noted in the example given `kiosk-admin` is the variable `server_us
 - When using Wifi configure Wifi settings via Ansible
 - Create the Ansible hosts file automatically from the output of the nmap scan
 - Set the default language (accept language header) in Chromium
-- Make the Pi 3 operate as a iBeacon Bluetooth beacon device, configure beacon settings via Ansible
 - Splash screen
+
+## Technologies
+
+- [Ansible](https://github.com/ansible/ansible), tested with 2.2
+- [PyBeacon](https://github.com/nirmankarta/PyBeacon)
 
 ## Contributing
 
